@@ -20,7 +20,7 @@ pipeline {
 
         stage('Set K8S Context'){
             steps {
-                withAWS(credentials:'aws-credentials'){
+                withAWS(credentials:'jenkins1'){
                     sh "kubectl config set-context arn:aws:eks:us-east-1:526037358249:cluster/production"
                 }
             }
@@ -52,7 +52,7 @@ pipeline {
 
         stage('Green Deployment'){
             steps {
-                withAWS(credentials:'aws-credentials'){
+                withAWS(credentials:'jenkins1''){
                     sh "kubectl apply -f k8s/Green/green-deployment.yaml && kubectl apply -f k8s/Green/test-service.yaml"
                 }
             }
@@ -66,7 +66,7 @@ pipeline {
 
         stage('Switch Traffic To Green Deployment'){
             steps{
-                withAWS(credentials:'aws-credentials'){
+                withAWS(credentials:'jenkins1''){
                     sh "kubectl apply -f k8s/Green/green-service.yaml"
                 }
             }
@@ -98,7 +98,7 @@ pipeline {
 
         stage('Blue Deployment'){
             steps {
-                withAWS(credentials:'aws-credentials'){
+                withAWS(credentials:'jenkins1'){
                     sh "kubectl apply -f k8s/Blue"
                 }
             }
