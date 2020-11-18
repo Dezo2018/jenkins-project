@@ -1,10 +1,10 @@
 pipeline {
     environment{
-        registryCredential = 'docker-hub' 
-        greenDockerImage = '' 
+        registryCredential = 'docker-hub'
+        greenDockerImage = ''
         blueDockerImage = ''
     }
-    agent any 
+    agent any
     stages {
         stage('Install Requirements'){
             steps{
@@ -15,6 +15,14 @@ pipeline {
         stage('Lint Code'){
             steps {
                 sh "bash ./run_pylint.sh"
+            }
+        }
+
+        stage('Set K8S Context'){
+            steps {
+                withAWS(credentials:'aws-credentials'){
+                    sh "kubectl config set-context arn:aws:eks:us-east-1:526037358249:cluster/production"
+                }
             }
         }
 
@@ -37,14 +45,14 @@ pipeline {
         }
 
         stage('Clean Up Green Image'){
-            steps { 
-                sh "docker rmi desjenkins/pre-production-flask-app:latest" 
+            steps {
+                sh "docker rmi desjenkins/pre-production-flask-app:latest"
             }
         }
 
         stage('Green Deployment'){
             steps {
-                withAWS(credentials:'jenkins1''){
+                withAWS(credentials:'aws-credentials'){
                     sh "kubectl apply -f k8s/Green/green-deployment.yaml && kubectl apply -f k8s/Green/test-service.yaml"
                 }
             }
@@ -58,7 +66,7 @@ pipeline {
 
         stage('Switch Traffic To Green Deployment'){
             steps{
-                withAWS(credentials:'jenkins1''){
+                withAWS(credentials:'aws-credentials'){
                     sh "kubectl apply -f k8s/Green/green-service.yaml"
                 }
             }
@@ -83,14 +91,14 @@ pipeline {
         }
 
         stage('Clean Up Blue Image'){
-            steps { 
-                sh "docker rmi desjenkins/flask-app:latest" 
+            steps {
+                sh "docker rmi desjenkins/flask-app:latest"
             }
         }
 
         stage('Blue Deployment'){
             steps {
-                withAWS(credentials:'jenkins1'){
+                withAWS(credentials:'aws-credentials'){
                     sh "kubectl apply -f k8s/Blue"
                 }
             }
