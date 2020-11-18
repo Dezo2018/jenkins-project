@@ -18,14 +18,6 @@ pipeline {
             }
         }
 
-        stage('Set K8S Context'){
-            steps {
-                withAWS(credentials:'jenkins1'){
-                    sh "kubectl config set-context arn:aws:eks:us-east-1:526037358249:cluster/production"
-                }
-            }
-        }
-
         stage('Build Green Docker Image') {
             steps {
                 script{
