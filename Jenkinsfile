@@ -37,7 +37,7 @@ pipeline {
         stage('Upload Green Image to Docker-Hub'){
             steps{
                 script{
-                    docker.withRegistry('e690ec94c5e2', registryCredential){
+                    docker.withRegistry('', registryCredential){
                         greenDockerImage.push()
                     }
                 }
